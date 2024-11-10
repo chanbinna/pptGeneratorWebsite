@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerPoint Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>샌디에고 온누리교회 찬양 ppt 생성기</h1>
+
+        <!-- Unified form for file upload or text entry -->
+        <form action="/" method="post" enctype="multipart/form-data">
+            <h2>Upload Your Text File(.txt) or Enter Text Below</h2>
+
+            <!-- File upload option -->
+            <input type="file" name="file" accept=".txt">
+
+            <hr>
+
+            <!-- Textarea option -->
+            <textarea name="content" rows="10" placeholder="아래에 가사를 입력해주세요..."></textarea>
+
+            <!-- Single submit button -->
+            <button type="submit">PPT 생성</button>
+        </form>
+    </div>
+</body>
+</html>
