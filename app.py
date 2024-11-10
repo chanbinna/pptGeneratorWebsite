@@ -83,10 +83,23 @@ def create_slide(prs, content):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     img_path = "static/background.jpg"  # Replace with your image file path
 
+    # Add background image
     background = slide.shapes.add_picture(img_path, Cm(0), Cm(0), width=prs.slide_width, height=prs.slide_height)
     slide.shapes._spTree.remove(background._element)
     slide.shapes._spTree.insert(2, background._element)
 
+    # Add top-left title text box
+    top_left_box = slide.shapes.add_textbox(Cm(0.88), Cm(0.81), Cm(10), Cm(2))
+    top_left_frame = top_left_box.text_frame
+    top_left_frame.text = "Title"  # You can set this to any static or dynamic title
+    top_left_paragraph = top_left_frame.paragraphs[0]
+    top_left_paragraph.font.name = "Malgun Gothic"
+    top_left_paragraph.font.bold = True
+    top_left_paragraph.font.size = Pt(17.5)
+    top_left_paragraph.font.color.rgb = RGBColor(0x59, 0x59, 0x59)
+    top_left_paragraph.alignment = PP_ALIGN.LEFT
+
+    # Add main centered content text box for the paragraph content
     title_box = slide.shapes.add_textbox(Cm(0), Cm((14.29 - 3) / 2), prs.slide_width, Cm(3))
     title_frame = title_box.text_frame
     title_frame.vertical_anchor = MSO_VERTICAL_ANCHOR.MIDDLE
