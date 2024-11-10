@@ -37,9 +37,9 @@ def create_ppt_from_text(text_file):
     prs.slide_height = Cm(14.29)
 
     with open(text_file, "r", encoding="utf-8") as file:
-        paragraphs, title = get_paragraphs(file.readlines())
+        paragraphs, titles = get_paragraphs(file.readlines())
 
-    for paragraph in paragraphs:
+    for paragraph, title in zip(paragraphs, titles):
         create_slide(prs, paragraph, title)
 
     output_path = os.path.join(app.config['UPLOAD_FOLDER'], "generated_presentation.pptx")
@@ -52,9 +52,9 @@ def create_ppt_from_textarea(content):
     prs.slide_height = Cm(14.29)
 
     lines = content.splitlines()
-    paragraphs, title = get_paragraphs(lines)
+    paragraphs, titles = get_paragraphs(lines)
 
-    for paragraph in paragraphs:
+    for paragraph, title in zip(paragraphs, titles):
         create_slide(prs, paragraph, title)
 
     pptx_data = io.BytesIO()
@@ -64,24 +64,34 @@ def create_ppt_from_textarea(content):
 
 def get_paragraphs(lines):
     paragraphs = []
+    titles = []
     paragraph = []
-    title = "Default Title"  # Default title in case no < > line is found
+    title = "Default Title"  # Default title if none found
 
     for line in lines:
         line = line.strip()
         if line.startswith("<") and line.endswith(">"):
-            # Update title when encountering a new < > line
+            # Save the current paragraph and title if exists
+            if paragraph:
+                paragraphs.append(paragraph)
+                titles.append(title)
+                paragraph = []
+            # Update the title for the new section
             title = line[1:-1]
         elif line:
             paragraph.append(line)
         else:
             if paragraph:
                 paragraphs.append(paragraph)
+                titles.append(title)
                 paragraph = []
+
+    # Append the last paragraph and title if remaining
     if paragraph:
         paragraphs.append(paragraph)
+        titles.append(title)
 
-    return paragraphs, title
+    return paragraphs, titles
 
 def create_slide(prs, content, title):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
