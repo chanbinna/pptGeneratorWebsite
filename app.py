@@ -37,10 +37,10 @@ def create_ppt_from_text(text_file):
     prs.slide_height = Cm(14.29)
 
     with open(text_file, "r", encoding="utf-8") as file:
-        paragraphs = get_paragraphs(file.readlines())
+        paragraphs, title = get_paragraphs(file.readlines())
 
     for paragraph in paragraphs:
-        create_slide(prs, paragraph)
+        create_slide(prs, paragraph, title)
 
     output_path = os.path.join(app.config['UPLOAD_FOLDER'], "generated_presentation.pptx")
     prs.save(output_path)
@@ -52,10 +52,10 @@ def create_ppt_from_textarea(content):
     prs.slide_height = Cm(14.29)
 
     lines = content.splitlines()
-    paragraphs = get_paragraphs(lines)
+    paragraphs, title = get_paragraphs(lines)
 
     for paragraph in paragraphs:
-        create_slide(prs, paragraph)
+        create_slide(prs, paragraph, title)
 
     pptx_data = io.BytesIO()
     prs.save(pptx_data)
@@ -65,10 +65,14 @@ def create_ppt_from_textarea(content):
 def get_paragraphs(lines):
     paragraphs = []
     paragraph = []
+    title = "Default Title"  # Default title in case no < > line is found
 
     for line in lines:
         line = line.strip()
-        if line:
+        if line.startswith("<") and line.endswith(">"):
+            # Update title when encountering a new < > line
+            title = line[1:-1]
+        elif line:
             paragraph.append(line)
         else:
             if paragraph:
@@ -77,9 +81,9 @@ def get_paragraphs(lines):
     if paragraph:
         paragraphs.append(paragraph)
 
-    return paragraphs
+    return paragraphs, title
 
-def create_slide(prs, content):
+def create_slide(prs, content, title):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     img_path = "static/background.jpg"  # Replace with your image file path
 
@@ -91,7 +95,7 @@ def create_slide(prs, content):
     # Add top-left title text box
     top_left_box = slide.shapes.add_textbox(Cm(0.88), Cm(0.81), Cm(10), Cm(2))
     top_left_frame = top_left_box.text_frame
-    top_left_frame.text = "Title"  # You can set this to any static or dynamic title
+    top_left_frame.text = title  # Set the dynamic title based on < > text
     top_left_paragraph = top_left_frame.paragraphs[0]
     top_left_paragraph.font.name = "Malgun Gothic"
     top_left_paragraph.font.bold = True
