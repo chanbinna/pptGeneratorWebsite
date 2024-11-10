@@ -94,3 +94,18 @@ hr {
     width: 80%;
     margin: 30px 0;
 }
+
+.download-link {
+    margin-top: 20px;  /* Adjust the value as needed for more or less space */
+}
+
+.download-link a {
+    color: #1f3864;  /* Match the button color or choose a preferred color */
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.download-link a:hover {
+    color: #3b4a78;
+}
