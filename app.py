@@ -25,7 +25,7 @@ def index():
 
         elif content:
             pptx_data = create_ppt_from_textarea(content)
-            return send_file(pptx_data, as_attachment=True, download_name="generated_presentation.pptx")
+            return send_file(pptx_data, as_attachment=True, download_name="찬양ppt.pptx")
 
         return redirect(url_for("index"))
 
@@ -42,7 +42,7 @@ def create_ppt_from_text(text_file):
     for paragraph, title in zip(paragraphs, titles):
         create_slide(prs, paragraph, title)
 
-    output_path = os.path.join(app.config['UPLOAD_FOLDER'], "generated_presentation.pptx")
+    output_path = os.path.join(app.config['UPLOAD_FOLDER'], "찬양ppt.pptx")
     prs.save(output_path)
     return output_path
 
@@ -95,7 +95,7 @@ def get_paragraphs(lines):
 
 def create_slide(prs, content, title):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
-    img_path = "static/background.jpg"  # Replace with your image file path
+    img_path = "static/background2.png"  # Replace with your image file path
 
     # Add background image
     background = slide.shapes.add_picture(img_path, Cm(0), Cm(0), width=prs.slide_width, height=prs.slide_height)
@@ -109,8 +109,8 @@ def create_slide(prs, content, title):
     top_left_paragraph = top_left_frame.paragraphs[0]
     top_left_paragraph.font.name = "Malgun Gothic"
     top_left_paragraph.font.bold = True
-    top_left_paragraph.font.size = Pt(17.5)
-    top_left_paragraph.font.color.rgb = RGBColor(0x59, 0x59, 0x59)
+    top_left_paragraph.font.size = Pt(18)
+    top_left_paragraph.font.color.rgb = RGBColor(0, 0, 0)
     top_left_paragraph.alignment = PP_ALIGN.LEFT
 
     # Add main centered content text box for the paragraph content
@@ -122,10 +122,10 @@ def create_slide(prs, content, title):
         p = title_frame.add_paragraph() if title_frame.text else title_frame.paragraphs[0]
         p.text = line
         p.font.name = "Malgun Gothic"
-        p.font.size = Pt(40)
+        p.font.size = Pt(47.5)
         p.font.bold = True
         p.alignment = PP_ALIGN.CENTER
-        p.font.color.rgb = RGBColor(0x1F, 0x38, 0x64)
+        p.font.color.rgb = RGBColor(0,0,0)
 
 if __name__ == "__main__":
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
