@@ -121,9 +121,3 @@ hr {
 .download-link a:hover {
     color: #3b4a78;
 }
-
-.divider {
-    background-color: black;
-    width: 100%;
-    height: 1px;
-}
