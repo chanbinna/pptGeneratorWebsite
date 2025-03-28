@@ -33,8 +33,8 @@ def index():
 
 def create_ppt_from_text(text_file):
     prs = Presentation()
-    prs.slide_width = Cm(25.4)
-    prs.slide_height = Cm(14.29)
+    prs.slide_width = Cm(33.87)
+    prs.slide_height = Cm(19.05)
 
     with open(text_file, "r", encoding="utf-8") as file:
         paragraphs, titles = get_paragraphs(file.readlines())
@@ -94,18 +94,21 @@ def get_paragraphs(lines):
     return paragraphs, titles
 
 def create_slide(prs, content, title):
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    img_path = "static/background2.png"  # Replace with your image file path
+    prs.slide_width = Cm(33.87)
+    prs.slide_height = Cm(19.05)
 
-    # Add background image
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    img_path = "static/background2.png"
+
+    # Background image
     background = slide.shapes.add_picture(img_path, Cm(0), Cm(0), width=prs.slide_width, height=prs.slide_height)
     slide.shapes._spTree.remove(background._element)
     slide.shapes._spTree.insert(2, background._element)
 
-    # Add top-left title text box
+    # Top-left title
     top_left_box = slide.shapes.add_textbox(Cm(0.88), Cm(0.81), Cm(10), Cm(2))
     top_left_frame = top_left_box.text_frame
-    top_left_frame.text = title  # Set the dynamic title based on < > text
+    top_left_frame.text = title
     top_left_paragraph = top_left_frame.paragraphs[0]
     top_left_paragraph.font.name = "Malgun Gothic"
     top_left_paragraph.font.bold = True
@@ -113,19 +116,74 @@ def create_slide(prs, content, title):
     top_left_paragraph.font.color.rgb = RGBColor(0, 0, 0)
     top_left_paragraph.alignment = PP_ALIGN.LEFT
 
-    # Add main centered content text box for the paragraph content
-    title_box = slide.shapes.add_textbox(Cm(0), Cm((14.29 - 3) / 2), prs.slide_width, Cm(3))
-    title_frame = title_box.text_frame
-    title_frame.vertical_anchor = MSO_VERTICAL_ANCHOR.MIDDLE
+    # Split Korean and English lines
+    korean_lines = []
+    english_lines = []
+    in_english_block = False
+    english_block = []
 
     for line in content:
-        p = title_frame.add_paragraph() if title_frame.text else title_frame.paragraphs[0]
-        p.text = line
-        p.font.name = "Malgun Gothic"
-        p.font.size = Pt(47.5)
-        p.font.bold = True
-        p.alignment = PP_ALIGN.CENTER
-        p.font.color.rgb = RGBColor(0,0,0)
+        line = line.strip()
+        if line.startswith("{"):
+            in_english_block = True
+            english_block.append(line[1:].strip())
+        elif line.endswith("}") and in_english_block:
+            in_english_block = False
+            english_block.append(line[:-1].strip())
+            english_lines.extend(english_block)
+            english_block = []
+        elif in_english_block:
+            english_block.append(line)
+        else:
+            korean_lines.append(line)
+
+    # ✅ Main slide layout based on presence of English lines
+    if english_lines:
+        # Korean box
+        kor_box = slide.shapes.add_textbox(Cm(4.79), Cm(0.91), Cm(24.58), Cm(11.39))
+        kor_frame = kor_box.text_frame
+        kor_frame.vertical_anchor = MSO_VERTICAL_ANCHOR.MIDDLE
+        for line in korean_lines:
+            p = kor_frame.add_paragraph() if kor_frame.text else kor_frame.paragraphs[0]
+            p.text = line
+            p.font.name = "Malgun Gothic"
+            p.font.size = Pt(54)
+            p.font.bold = True
+            p.alignment = PP_ALIGN.CENTER
+            p.font.color.rgb = RGBColor(0, 0, 0)
+
+        # English box
+        # 회색 투명 배경 이미지를 박스 위치에 삽입
+        slide.shapes.add_picture("static/gray.png", Cm(1.18), Cm(11.37), Cm(31.72), Cm(7.25))
+
+        # 그 위에 텍스트박스 삽입 (투명도 필요 없음)
+        eng_box = slide.shapes.add_textbox(Cm(1.18), Cm(11.37), Cm(31.72), Cm(7.25))
+        eng_frame = eng_box.text_frame
+        eng_frame.margin_top = 0
+        eng_frame.margin_bottom = 0
+        eng_frame.vertical_anchor = MSO_VERTICAL_ANCHOR.MIDDLE
+        for line in english_lines:
+            p = eng_frame.add_paragraph() if eng_frame.text else eng_frame.paragraphs[0]
+            p.text = line
+            p.font.name = "Malgun Gothic"
+            p.font.size = Pt(40)
+            p.font.bold = True
+            p.alignment = PP_ALIGN.CENTER
+            p.font.color.rgb = RGBColor(0x25, 0x37, 0x61)
+
+    else:
+        # Only Korean
+        title_box = slide.shapes.add_textbox(Cm(0), Cm((19.05 - 3) / 2), prs.slide_width, Cm(3))
+        title_frame = title_box.text_frame
+        title_frame.vertical_anchor = MSO_VERTICAL_ANCHOR.MIDDLE
+        for line in content:
+            p = title_frame.add_paragraph() if title_frame.text else title_frame.paragraphs[0]
+            p.text = line
+            p.font.name = "Malgun Gothic"
+            p.font.size = Pt(54)
+            p.font.bold = True
+            p.alignment = PP_ALIGN.CENTER
+            p.font.color.rgb = RGBColor(0, 0, 0)
 
 if __name__ == "__main__":
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
